@@ -68,7 +68,7 @@ class Layer:
             last_n_id += 1
             N = Neuron(weights=weights, bias=r.randint(-10, 10), id=last_n_id)
             self.neurons.append(N)
-            print(f"Neuron with id {last_n_id} created with weights {weights} and bias {N.bias}")
+            print(f"Neuron with id {last_n_id} created with weights {weights} and bias {N.bias} in layer {self.id}")
 
     def predict(self, inputs:list):
         prediction = [N.output(inputs) for N in self.neurons]
@@ -79,13 +79,21 @@ class Network:
         self.arch = arch
         self.layers = []
 
-        for i in arch:
+        global last_l_id
+        for index, i in enumerate(arch, start=0):
             last_l_id +=1
-            L = Layer(parameters=i[1], size=i[0], id=last_l_id)
-            self.layers.append()
+            L = Layer(size=i[0], parameters=i[1], id=last_l_id)
+            self.layers.append(L)
+            print(f"Layer {L.id} with size {L.size} and parameters {L.parameters} created")
 
 #N1 = Neuron(weights=[3, 2],bias=0.5)
 #N1.train(inputs=[[4, 5], [6, 10]], exp_out=[9, 18], learning_rate=0.012, epochs=1000)
 
 #L1 = Layer(parameters=3, size=4)
 #print(L1.predict(inputs=[1,3,7]))
+
+Network = Network(arch=[
+    [1, 2],
+    [4, 1],
+    [1, 4]
+])
