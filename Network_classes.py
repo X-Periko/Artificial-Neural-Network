@@ -1,9 +1,12 @@
 import random as r
+last_n_id = -1
+last_l_id = -1
 
 class Neuron:
-    def __init__(self, weights, bias):
+    def __init__(self, weights, bias,id):
         self.weights = weights
         self.bias = bias
+        self.id = id
 
     def output(self, inputs):
         self.prediction = self.bias
@@ -24,8 +27,6 @@ class Neuron:
         input_i = 0
         last_error = []
         for i in range(epochs):
-            input_i += 1
-
             if input_i == len(inputs):
                 input_i = 0
             self.pred = self.output(inputs=inputs[input_i])
@@ -35,36 +36,56 @@ class Neuron:
                 print("=========================================================================================\n")
                 break
             print(f"Pred: {self.pred}")
-            error = abs(exp_out[input_i] - self.pred)
+            signed_error = exp_out[input_i] - self.pred
+            error = abs(signed_error)
             if error in last_error:
                 print("=========================================================================================\n")
                 print(f"[!] Minimum error {error} achieved at iteration {i}\n")
                 print("=========================================================================================\n")
                 break
             last_error.append(error)
-            self.adjust_weights(loss=error, learning_rate=learning_rate)
+            self.adjust_weights(loss=signed_error, learning_rate=learning_rate, x = inputs[input_i])
             print(f"Iteration {i}: Weights: {self.weights}, Error: {error}")
+            input_i += 1
             
-    def adjust_weights(self, loss, learning_rate):
+    def adjust_weights(self, loss, learning_rate,x):
         for i, w in enumerate(self.weights, start=0):
-            grad = 2*(loss)*w
+            grad = -2*(loss)*x[i]
             print(f"Grad: {grad}")
             adjusted_w = w - (grad * learning_rate)
             self.weights[i] = adjusted_w
 
 class Layer:
-    def __init__(self, neurons, inputs, parameters, bias, size):
-        self.neurons = neurons
+    def __init__(self, parameters:int, size:int, id):
+        self.neurons = []
         self.parameters = parameters
-        self.bias = bias
-        self.inputs = inputs
         self.size = size
+        self.id = id
 
-        for id in self.size:
-            pass
+        global last_n_id
+        for _ in range(self.size):
+            weights = [r.randint(-10, 10) for _ in range(self.parameters)]
+            last_n_id += 1
+            N = Neuron(weights=weights, bias=r.randint(-10, 10), id=last_n_id)
+            self.neurons.append(N)
+            print(f"Neuron with id {last_n_id} created with weights {weights} and bias {N.bias}")
+
+    def predict(self, inputs:list):
+        prediction = [N.output(inputs) for N in self.neurons]
+        return prediction
 
 class Network:
-    pass
+    def __init__(self, arch:list[list]):
+        self.arch = arch
+        self.layers = []
 
-N1 = Neuron(weights=[3, 2],bias=0.5)
-N1.train(inputs=[[4, 5], [6, 10]], exp_out=[9, 18], learning_rate=0.012, epochs=100)
+        for i in arch:
+            last_l_id +=1
+            L = Layer(parameters=i[1], size=i[0], id=last_l_id)
+            self.layers.append()
+
+#N1 = Neuron(weights=[3, 2],bias=0.5)
+#N1.train(inputs=[[4, 5], [6, 10]], exp_out=[9, 18], learning_rate=0.012, epochs=1000)
+
+#L1 = Layer(parameters=3, size=4)
+#print(L1.predict(inputs=[1,3,7]))
